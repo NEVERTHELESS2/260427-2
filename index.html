@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 워크 어시스턴트</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        textarea { width: 100%; height: 100px; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
+        button { padding: 10px 20px; background-color: #4285f4; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        button:hover { background-color: #3367d6; }
+        #result { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; min-height: 50px; white-space: pre-wrap; }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h2>🤖 AI 워크 어시스턴트 (비밀번호 없음!)</h2>
+    <textarea id="userInput" placeholder="질문을 입력하세요..."></textarea>
+    
+    <div>
+        <button onclick="askAI()">질문하기</button>
+    </div>
+
+    <div id="result">결과가 여기에 표시됩니다.</div>
+
+    <script>
+        // 여기에 방금 새로 배포한 앱스크립트 주소(GAS_URL)를 넣으세요!
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwDxWaz-w327sd_Z2TK0Bq2n7YYFhyZL33BEcSv0lZBonJVd7IVAT5SUpZxZ0qdRi9f/exec";
+
+        async function askAI() {
+            const input = document.getElementById('userInput').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!input) {
+                alert("질문을 입력해주세요!");
+                return;
+            }
+
+            resultDiv.innerText = "앱스크립트 우체부가 답변을 가져오는 중입니다...";
+            resultDiv.classList.add('loading');
+
+            try {
+                // 웹사이트는 이제 Gemini가 아니라 '내 앱스크립트'로만 질문을 보냅니다. (암호 필요 없음!)
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    // headers 설정을 빼버려서 CORS 오류를 방지하는 꿀팁 적용
+                    body: JSON.stringify({ question: input })
+                });
+
+                const data = await response.json();
+                
+                if (data.result === "success") {
+                    resultDiv.innerText = data.answer;
+                    resultDiv.classList.remove('loading');
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                resultDiv.innerText = "🚨 오류: " + error.message;
+                resultDiv.classList.remove('loading');
+            }
+        }
+    </script>
+</body>
+</html>
